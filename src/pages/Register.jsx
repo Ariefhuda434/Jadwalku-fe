@@ -54,9 +54,7 @@ export default function Register() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-600 flex items-center justify-center p-4">
       <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-2xl p-8 animate-slide-up">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white text-xl font-bold mx-auto mb-3">
-            J
-          </div>
+          <img src="/src/assets/logo.svg" className="w-12 h-12 mx-auto mb-3" />
           <h1 className="font-heading text-2xl font-bold text-text-primary">
             Daftar
           </h1>

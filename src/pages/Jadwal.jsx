@@ -10,6 +10,7 @@ import Modal from '../components/ui/Modal';
 import Badge from '../components/ui/Badge';
 import EmptyState from '../components/ui/EmptyState';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { Search, Pencil, X, Calendar } from 'lucide-react';
 
 const dayOptions = [
   { value: 'Senin', label: 'Senin' },
@@ -140,7 +141,7 @@ export default function Jadwal() {
       <Card className="p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">⌕</span>
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
             <input
               type="text"
               placeholder="Cari mata kuliah, dosen, ruang..."
@@ -167,7 +168,7 @@ export default function Jadwal() {
       {Object.keys(grouped).length === 0 ? (
         <Card className="p-5">
           <EmptyState
-            icon="📅"
+            icon={<Calendar size={48} className="text-text-muted" />}
             title="Belum ada jadwal"
             description="Tambahkan jadwal kuliah Anda sekarang."
             action={<Button onClick={openAdd}>Tambah Jadwal</Button>}
@@ -198,15 +199,15 @@ export default function Jadwal() {
                   <div className="flex gap-1.5">
                     <button
                       onClick={() => openEdit(j)}
-                      className="p-1.5 text-text-secondary hover:text-primary hover:bg-primary-bg rounded-lg transition-all text-sm"
+                      className="p-1.5 text-text-secondary hover:text-primary hover:bg-primary-bg rounded-lg transition-all"
                     >
-                      ✎
+                      <Pencil size={16} />
                     </button>
                     <button
                       onClick={() => setDeleteId(j.id)}
-                      className="p-1.5 text-text-secondary hover:text-danger hover:bg-red-50 rounded-lg transition-all text-sm"
+                      className="p-1.5 text-text-secondary hover:text-danger hover:bg-red-50 rounded-lg transition-all"
                     >
-                      ✕
+                      <X size={16} />
                     </button>
                   </div>
                 </Card>

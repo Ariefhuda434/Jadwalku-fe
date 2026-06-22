@@ -6,6 +6,7 @@ import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import EmptyState from '../components/ui/EmptyState';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { Calendar, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -68,14 +69,14 @@ export default function Dashboard() {
           {/* Jadwal Hari Ini */}
           <Card className="p-5">
             <h2 className="font-heading font-semibold text-text-primary mb-4 flex items-center gap-2">
-              <span className="text-primary">☰</span> Jadwal Hari Ini —{' '}
+              <Calendar size={18} className="text-primary" /> Jadwal Hari Ini —{' '}
               <span className="text-text-secondary font-normal">{today}</span>
             </h2>
             {jadwalToday.length === 0 ? (
               <EmptyState
                 title="Tidak ada jadwal hari ini"
                 description="Santai aja, hari ini libur kuliah!"
-                icon="🎉"
+                icon={<Calendar size={48} className="text-text-muted" />}
               />
             ) : (
               <div className="space-y-3">
@@ -103,13 +104,13 @@ export default function Dashboard() {
           {/* Deadline Tugas Terdekat */}
           <Card className="p-5">
             <h2 className="font-heading font-semibold text-text-primary mb-4 flex items-center gap-2">
-              <span className="text-accent-urgent">☑</span> Deadline Tugas Terdekat
+              <AlertTriangle size={18} className="text-accent-urgent" /> Deadline Tugas Terdekat
             </h2>
             {sortedTugas.length === 0 ? (
               <EmptyState
                 title="Tidak ada tugas"
                 description="Semua tugas sudah selesai. Mantap!"
-                icon="✅"
+                icon={<CheckCircle size={48} className="text-text-muted" />}
               />
             ) : (
               <div className="space-y-3">
@@ -118,7 +119,7 @@ export default function Dashboard() {
                     <span className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center text-xs ${
                       t.status === 'selesai' ? 'bg-success border-success text-white' : 'border-text-muted'
                     }`}>
-                      {t.status === 'selesai' && '✓'}
+                      {t.status === 'selesai' && <Check size={12} />}
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-medium ${t.status === 'selesai' ? 'line-through text-text-muted' : 'text-text-primary'}`}>
@@ -141,14 +142,14 @@ export default function Dashboard() {
           {/* Mini Calendar */}
           <Card className="p-5">
             <div className="flex items-center justify-between mb-4">
-              <button onClick={prevMonth} className="text-text-secondary hover:text-text-primary text-lg">
-                ‹
+              <button onClick={prevMonth} className="text-text-secondary hover:text-text-primary">
+                <ChevronLeft size={20} />
               </button>
               <h3 className="font-heading font-semibold text-text-primary text-sm">
                 {getMonthName(calMonth)} {calYear}
               </h3>
-              <button onClick={nextMonth} className="text-text-secondary hover:text-text-primary text-lg">
-                ›
+              <button onClick={nextMonth} className="text-text-secondary hover:text-text-primary">
+                <ChevronRight size={20} />
               </button>
             </div>
             <div className="grid grid-cols-7 gap-1 text-center">

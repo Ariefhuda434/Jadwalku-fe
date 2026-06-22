@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { Search } from 'lucide-react';
+import NotificationPanel from '../notification/NotificationPanel';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -19,7 +21,7 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 left-[260px] right-0 h-16 bg-bg-card border-b border-border flex items-center justify-between px-6 z-40">
       <div className="relative w-80">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">⌕</span>
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
         <input
           type="text"
           placeholder="Cari jadwal atau tugas..."
@@ -28,10 +30,7 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <button className="relative text-text-secondary hover:text-text-primary transition-colors text-xl">
-          🔔
-          <span className="absolute -top-1 -right-1 w-2 h-2 bg-danger rounded-full" />
-        </button>
+        <NotificationPanel />
 
         <div className="relative" ref={dropdownRef}>
           <button

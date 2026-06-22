@@ -12,6 +12,7 @@ import Badge from '../components/ui/Badge';
 import EmptyState from '../components/ui/EmptyState';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import DatePicker from '../components/ui/DatePicker';
+import { Search, Pencil, Trash2, Check, ClipboardList } from 'lucide-react';
 
 const tabs = ['Semua', 'Aktif', 'Selesai'];
 const priorityOptions = [
@@ -101,7 +102,7 @@ export default function Tugas() {
     const newStatus = item.status === 'selesai' ? 'pending' : 'selesai';
     try {
       await api.put(`/tugas/${item.id}`, { ...item, status: newStatus });
-      addToast(newStatus === 'selesai' ? 'Tugas selesai! 🎉' : 'Tugas diaktifkan kembali', 'success');
+      addToast(newStatus === 'selesai' ? 'Tugas selesai!' : 'Tugas diaktifkan kembali', 'success');
       fetchTugas();
     } catch {
       addToast('Gagal mengubah status', 'error');
@@ -142,7 +143,7 @@ export default function Tugas() {
       <Card className="p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">⌕</span>
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
             <input
               type="text"
               placeholder="Cari tugas..."
@@ -173,7 +174,7 @@ export default function Tugas() {
         {filtered.length === 0 ? (
           <Card className="p-5">
             <EmptyState
-              icon="📋"
+              icon={<ClipboardList size={48} className="text-text-muted" />}
               title="Tidak ada tugas"
               description={search ? 'Tidak ditemukan dengan kata kunci tersebut' : 'Belum ada tugas, tambahkan sekarang!'}
               action={<Button onClick={openAdd}>Tambah Tugas</Button>}
@@ -194,7 +195,7 @@ export default function Tugas() {
                     : 'border-text-muted hover:border-primary'
                 }`}
               >
-                {t.status === 'selesai' && '✓'}
+                {t.status === 'selesai' && <Check size={12} />}
               </button>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3">
@@ -214,15 +215,15 @@ export default function Tugas() {
                     {t.status === 'selesai' && <Badge variant="success">Selesai</Badge>}
                     <button
                       onClick={() => openEdit(t)}
-                      className="p-1.5 text-text-secondary hover:text-primary hover:bg-primary-bg rounded-lg transition-all text-sm"
+                      className="p-1.5 text-text-secondary hover:text-primary hover:bg-primary-bg rounded-lg transition-all"
                     >
-                      ✎
+                      <Pencil size={16} />
                     </button>
                     <button
                       onClick={() => setDeleteId(t.id)}
-                      className="p-1.5 text-text-secondary hover:text-danger hover:bg-red-50 rounded-lg transition-all text-sm"
+                      className="p-1.5 text-text-secondary hover:text-danger hover:bg-red-50 rounded-lg transition-all"
                     >
-                      ✕
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>

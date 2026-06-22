@@ -5,8 +5,9 @@ import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import EmptyState from '../components/ui/EmptyState';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { ChevronLeft, ChevronRight, Calendar, Clock, MailX, Check } from 'lucide-react';
 
-const dayHeaders = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+const dayHeaders = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
 export default function Kalender() {
   const now = new Date();
@@ -32,7 +33,7 @@ export default function Kalender() {
   function getJadwalForDate(day) {
     if (!day) return [];
     const date = new Date(year, month, day);
-    const dayName = dayHeaders[date.getDay() === 0 ? 6 : date.getDay() - 1];
+    const dayName = dayHeaders[date.getDay()];
     return jadwal.filter((j) => j.hari === dayName);
   }
 
@@ -80,18 +81,18 @@ export default function Kalender() {
         <div className="flex items-center justify-between mb-5">
           <button
             onClick={prevMonth}
-            className="w-9 h-9 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-page transition-all text-lg"
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-page transition-all"
           >
-            ‹
+            <ChevronLeft size={20} />
           </button>
           <h2 className="font-heading text-lg font-semibold text-text-primary">
             {getMonthName(month)} {year}
           </h2>
           <button
             onClick={nextMonth}
-            className="w-9 h-9 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-page transition-all text-lg"
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-page transition-all"
           >
-            ›
+            <ChevronRight size={20} />
           </button>
         </div>
 
@@ -153,14 +154,14 @@ export default function Kalender() {
             <EmptyState
               title="Tidak ada kegiatan"
               description="Tidak ada jadwal atau deadline di tanggal ini"
-              icon="📭"
+              icon={<MailX size={48} className="text-text-muted" />}
             />
           ) : (
             <div className="mt-4 space-y-4">
               {selectedDetail.jadwal.length > 0 && (
                 <div>
                   <h4 className="text-xs font-semibold text-primary uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <span>☰</span> Jadwal
+                    <Calendar size={14} /> Jadwal
                   </h4>
                   <div className="space-y-2">
                     {selectedDetail.jadwal.map((j, i) => (
@@ -187,7 +188,7 @@ export default function Kalender() {
               {selectedDetail.tugas.length > 0 && (
                 <div>
                   <h4 className="text-xs font-semibold text-accent-urgent uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <span>☑</span> Deadline Tugas
+                    <Clock size={14} /> Deadline Tugas
                   </h4>
                   <div className="space-y-2">
                     {selectedDetail.tugas.map((t, i) => (
@@ -195,7 +196,7 @@ export default function Kalender() {
                         <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center text-[8px] ${
                           t.status === 'selesai' ? 'bg-success border-success text-white' : 'border-text-muted'
                         }`}>
-                          {t.status === 'selesai' && '✓'}
+                          {t.status === 'selesai' && <Check size={10} />}
                         </span>
                         <div className="flex-1 min-w-0">
                           <p className={`text-sm font-medium ${t.status === 'selesai' ? 'line-through text-text-muted' : 'text-text-primary'}`}>
