@@ -13,6 +13,8 @@ import Kalender from './pages/Kalender';
 import FAQ from './pages/FAQ';
 import Groups from './pages/Groups';
 import GroupDetail from './pages/GroupDetail';
+import Profile from './pages/Profile';
+import WhatsAppPage from './pages/WhatsAppPage';
 
 export default function App() {
   return (
@@ -36,6 +38,8 @@ export default function App() {
                 <Route path="/kalender" element={<Kalender />} />
                 <Route path="/grup" element={<Groups />} />
                 <Route path="/grup/:id" element={<GroupDetail />} />
+                <Route path="/profil" element={<Profile />} />
+                <Route path="/whatsapp" element={<WhatsAppPage />} />
                 <Route path="/faq" element={<FAQ />} />
               </Route>
             </Routes>

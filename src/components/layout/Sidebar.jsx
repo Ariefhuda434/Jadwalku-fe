@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CalendarRange, CheckSquare, Calendar, HelpCircle, Users } from 'lucide-react';
+import { LayoutDashboard, CalendarRange, CheckSquare, Calendar, HelpCircle, Users, Settings, MessageCircle } from 'lucide-react';
 import logoSrc from '../../assets/logo.svg';
 
 const menus = [
@@ -9,6 +9,11 @@ const menus = [
   { to: '/grup', label: 'Grup', icon: Users },
   { to: '/kalender', label: 'Kalender', icon: Calendar },
   { to: '/faq', label: 'FAQ', icon: HelpCircle },
+];
+
+const bottomMenus = [
+  { to: '/whatsapp', label: 'WhatsApp', icon: MessageCircle },
+  { to: '/profil', label: 'Profil', icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -40,6 +45,25 @@ export default function Sidebar() {
             </NavLink>
           );
         })}
+        <div className="pt-4 mt-4 border-t border-indigo-800/30">
+          {bottomMenus.map((m) => {
+            const Icon = m.icon;
+            return (
+              <NavLink
+                key={m.to}
+                to={m.to}
+                className={({ isActive }) =>
+                  `sidebar-link ${
+                    isActive ? 'sidebar-link-active' : 'sidebar-link-inactive'
+                  }`
+                }
+              >
+                <Icon size={18} />
+                <span>{m.label}</span>
+              </NavLink>
+            );
+          })}
+        </div>
       </nav>
     </aside>
   );
