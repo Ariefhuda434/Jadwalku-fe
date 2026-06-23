@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 import { formatDate } from '../utils/helpers';
@@ -23,10 +24,11 @@ const priorityOptions = [
 
 export default function Tugas() {
   const { addToast } = useToast();
+  const location = useLocation();
   const [tugas, setTugas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Semua');
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(location.state?.search || '');
   const [modalOpen, setModalOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
@@ -42,11 +44,16 @@ export default function Tugas() {
 
   useEffect(() => {
     fetchTugas();
-  }, []);
+  }, [search, activeTab]);
 
   async function fetchTugas() {
+    setLoading(true);
     try {
-      const res = await api.get('/tugas');
+      const params = {};
+      if (search) params.search = search;
+      if (activeTab === 'Aktif') params.status = 'pending';
+      else if (activeTab === 'Selesai') params.status = 'selesai';
+      const res = await api.get('/tugas', { params });
       setTugas(res.data);
     } catch {
       setTugas([]);
@@ -101,7 +108,7 @@ export default function Tugas() {
   async function toggleStatus(item) {
     const newStatus = item.status === 'selesai' ? 'pending' : 'selesai';
     try {
-      await api.put(`/tugas/${item.id}`, { ...item, status: newStatus });
+      await api.put(`/tugas/${item.id}`, { status: newStatus });
       addToast(newStatus === 'selesai' ? 'Tugas selesai!' : 'Tugas diaktifkan kembali', 'success');
       fetchTugas();
     } catch {
@@ -121,12 +128,7 @@ export default function Tugas() {
     }
   }
 
-  const filtered = tugas.filter((t) => {
-    if (activeTab === 'Aktif' && t.status === 'selesai') return false;
-    if (activeTab === 'Selesai' && t.status !== 'selesai') return false;
-    return t.judul.toLowerCase().includes(search.toLowerCase()) ||
-      t.mata_kuliah?.toLowerCase().includes(search.toLowerCase());
-  });
+  const filtered = tugas;
 
   if (loading) return <LoadingSpinner size="lg" className="mt-20" />;
 

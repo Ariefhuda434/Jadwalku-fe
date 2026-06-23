@@ -17,7 +17,7 @@ const faqData = [
       },
       {
         q: 'Siapa yang membuat JadwalKu?',
-        a: 'JadwalKu dikembangkan oleh tim pengembang yang dipimpin oleh Anis dan Fiqa sebagai bagian dari proyek pengembangan aplikasi web.',
+        a: 'JadwalKu dikembangkan oleh tim pengembang sebagai bagian dari proyek pengembangan aplikasi web.',
       },
     ],
   },
@@ -136,8 +136,7 @@ export default function FAQ() {
         </h1>
         <p className="text-text-secondary mt-2 max-w-xl mx-auto">
           Temukan jawaban dari pertanyaan yang sering diajukan tentang JadwalKu.
-          Dibuat oleh <span className="font-semibold text-primary">Anis</span> &{' '}
-          <span className="font-semibold text-primary">Fiqa</span>.
+          Dibuat oleh <span className="font-semibold text-primary">Tim Developer</span>.
         </p>
       </div>
 
@@ -194,9 +193,7 @@ export default function FAQ() {
 
       <div className="mt-10 p-6 rounded-xl bg-primary-bg/50 border border-primary/20 text-center">
         <p className="text-sm text-text-secondary">
-          Masih ada pertanyaan? Hubungi{' '}
-          <span className="font-semibold text-primary">Anis</span> atau{' '}
-          <span className="font-semibold text-primary">Fiqa</span> untuk bantuan lebih lanjut.
+          Masih ada pertanyaan? Hubungi tim pengembang untuk bantuan lebih lanjut.
         </p>
       </div>
     </div>

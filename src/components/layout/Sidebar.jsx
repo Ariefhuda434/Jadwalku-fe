@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, CalendarRange, CheckSquare, Calendar, HelpCircle } from 'lucide-react';
+import logoSrc from '../../assets/logo.svg';
 
 const menus = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -13,7 +14,7 @@ export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-screen w-[260px] bg-bg-sidebar flex flex-col z-50">
       <div className="flex items-center gap-3 px-6 h-16 border-b border-indigo-800/50">
-        <img src="/src/assets/logo.svg" className="w-8 h-8" />
+        <img src={logoSrc} className="w-8 h-8" />
         <span className="font-heading font-semibold text-white text-lg">
           JadwalKu
         </span>
@@ -39,13 +40,6 @@ export default function Sidebar() {
           );
         })}
       </nav>
-
-      <div className="px-3 pb-6">
-        <div className="px-4 py-3 rounded-lg bg-indigo-800/30">
-          <p className="text-xs text-indigo-300 font-medium">Dibuat oleh</p>
-          <p className="text-xs text-indigo-400 mt-0.5">Anis &amp; Fiqa</p>
-        </div>
-      </div>
     </aside>
   );
 }

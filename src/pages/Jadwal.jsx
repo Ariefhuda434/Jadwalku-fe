@@ -46,11 +46,15 @@ export default function Jadwal() {
 
   useEffect(() => {
     fetchJadwal();
-  }, []);
+  }, [search, filterHari]);
 
   async function fetchJadwal() {
+    setLoading(true);
     try {
-      const res = await api.get('/jadwal');
+      const params = {};
+      if (search) params.search = search;
+      if (filterHari) params.hari = filterHari;
+      const res = await api.get('/jadwal', { params });
       setJadwal(res.data);
     } catch {
       setJadwal([]);
@@ -114,17 +118,9 @@ export default function Jadwal() {
     }
   }
 
-  const filtered = jadwal.filter((j) => {
-    const matchSearch = j.mata_kuliah.toLowerCase().includes(search.toLowerCase()) ||
-      j.dosen?.toLowerCase().includes(search.toLowerCase()) ||
-      j.ruang?.toLowerCase().includes(search.toLowerCase());
-    const matchHari = !filterHari || j.hari === filterHari;
-    return matchSearch && matchHari;
-  });
-
   const grouped = {};
   hariIndo.forEach((h) => {
-    const items = filtered.filter((j) => j.hari === h);
+    const items = jadwal.filter((j) => j.hari === h);
     if (items.length) grouped[h] = items;
   });
 

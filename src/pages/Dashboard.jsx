@@ -11,6 +11,7 @@ import { Calendar, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Check 
 export default function Dashboard() {
   const { user } = useAuth();
   const [data, setData] = useState(null);
+  const [allTugas, setAllTugas] = useState([]);
   const [loading, setLoading] = useState(true);
   const today = getTodayDay();
   const now = new Date();
@@ -23,10 +24,15 @@ export default function Dashboard() {
 
   async function fetchDashboard() {
     try {
-      const res = await api.get('/dashboard');
-      setData(res.data);
+      const [dashRes, tugasRes] = await Promise.all([
+        api.get('/dashboard'),
+        api.get('/tugas'),
+      ]);
+      setData(dashRes.data);
+      setAllTugas(tugasRes.data);
     } catch {
       setData({ jadwal_hari_ini: [], tugas_minggu_ini: [] });
+      setAllTugas([]);
     } finally {
       setLoading(false);
     }
@@ -50,8 +56,8 @@ export default function Dashboard() {
 
   const sortedTugas = [...tugasWeek].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
   const top3 = sortedTugas.slice(0, 3);
-  const totalTugas = sortedTugas.length;
-  const selesaiTugas = sortedTugas.filter((t) => t.status === 'selesai').length;
+  const totalTugas = allTugas.length;
+  const selesaiTugas = allTugas.filter((t) => t.status === 'selesai').length;
 
   if (loading) return <LoadingSpinner size="lg" className="mt-20" />;
 

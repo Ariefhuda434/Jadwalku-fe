@@ -5,6 +5,7 @@ import { useToast } from '../context/ToastContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import logoSrc from '../assets/logo.svg';
 
 export default function Login() {
   const { login } = useAuth();
@@ -41,7 +42,7 @@ export default function Login() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-600 flex items-center justify-center p-4">
       <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-2xl p-8 animate-slide-up">
         <div className="text-center mb-8">
-          <img src="/src/assets/logo.svg" className="w-12 h-12 mx-auto mb-3" />
+          <img src={logoSrc} className="w-12 h-12 mx-auto mb-3" />
           <h1 className="font-heading text-2xl font-bold text-text-primary">
             Masuk
           </h1>
