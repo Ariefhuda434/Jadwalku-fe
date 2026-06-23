@@ -136,7 +136,6 @@ export default function FAQ() {
         </h1>
         <p className="text-text-secondary mt-2 max-w-xl mx-auto">
           Temukan jawaban dari pertanyaan yang sering diajukan tentang JadwalKu.
-          Dibuat oleh <span className="font-semibold text-primary">Tim Developer</span>.
         </p>
       </div>
 
