@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 import { formatTime } from '../utils/helpers';
@@ -11,7 +10,7 @@ import Modal from '../components/ui/Modal';
 import Badge from '../components/ui/Badge';
 import EmptyState from '../components/ui/EmptyState';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import { Search, Pencil, X, Calendar } from 'lucide-react';
+import { Pencil, X, Calendar } from 'lucide-react';
 
 const dayOptions = [
   { value: 'Senin', label: 'Senin' },
@@ -26,10 +25,8 @@ const hariIndo = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
 export default function Jadwal() {
   const { addToast } = useToast();
-  const location = useLocation();
   const [jadwal, setJadwal] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState(location.state?.search || '');
   const [filterHari, setFilterHari] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
@@ -46,13 +43,12 @@ export default function Jadwal() {
 
   useEffect(() => {
     fetchJadwal();
-  }, [search, filterHari]);
+  }, [filterHari]);
 
   async function fetchJadwal() {
     setLoading(true);
     try {
       const params = {};
-      if (search) params.search = search;
       if (filterHari) params.hari = filterHari;
       const res = await api.get('/jadwal', { params });
       setJadwal(res.data);
@@ -137,17 +133,7 @@ export default function Jadwal() {
       </div>
 
       <Card className="p-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-            <input
-              type="text"
-              placeholder="Cari mata kuliah, dosen, ruang..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-lg bg-bg-page border border-border text-sm text-text-primary placeholder-text-muted outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-            />
-          </div>
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           <Select
             options={dayOptions}
             placeholder="Semua Hari"
@@ -155,8 +141,8 @@ export default function Jadwal() {
             onChange={(e) => setFilterHari(e.target.value)}
             className="sm:w-44"
           />
-          {(search || filterHari) && (
-            <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setFilterHari(''); }}>
+          {filterHari && (
+            <Button variant="ghost" size="sm" onClick={() => setFilterHari('')}>
               Reset
             </Button>
           )}
