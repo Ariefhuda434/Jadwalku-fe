@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CalendarRange, CheckSquare, Calendar } from 'lucide-react';
+import { LayoutDashboard, CalendarRange, CheckSquare, Calendar, HelpCircle } from 'lucide-react';
 
 const menus = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/jadwal', label: 'Jadwal', icon: CalendarRange },
   { to: '/tugas', label: 'Tugas', icon: CheckSquare },
   { to: '/kalender', label: 'Kalender', icon: Calendar },
+  { to: '/faq', label: 'FAQ', icon: HelpCircle },
 ];
 
 export default function Sidebar() {
@@ -41,8 +42,8 @@ export default function Sidebar() {
 
       <div className="px-3 pb-6">
         <div className="px-4 py-3 rounded-lg bg-indigo-800/30">
-          <p className="text-xs text-indigo-300 font-medium">Butuh bantuan?</p>
-          <p className="text-xs text-indigo-400 mt-0.5">Hubungi admin</p>
+          <p className="text-xs text-indigo-300 font-medium">Dibuat oleh</p>
+          <p className="text-xs text-indigo-400 mt-0.5">Anis &amp; Fiqa</p>
         </div>
       </div>
     </aside>

@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import Jadwal from './pages/Jadwal';
 import Tugas from './pages/Tugas';
 import Kalender from './pages/Kalender';
+import FAQ from './pages/FAQ';
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
               <Route path="/jadwal" element={<Jadwal />} />
               <Route path="/tugas" element={<Tugas />} />
               <Route path="/kalender" element={<Kalender />} />
+              <Route path="/faq" element={<FAQ />} />
             </Route>
           </Routes>
         </ToastProvider>

@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Search } from 'lucide-react';
 import NotificationPanel from '../notification/NotificationPanel';
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -25,6 +28,14 @@ export default function Navbar() {
         <input
           type="text"
           placeholder="Cari jadwal atau tugas..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && searchQuery.trim()) {
+              navigate('/jadwal', { state: { search: searchQuery.trim() } });
+              setSearchQuery('');
+            }
+          }}
           className="w-full pl-9 pr-3 py-2 rounded-lg bg-bg-page border border-border text-sm text-text-primary placeholder-text-muted outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
         />
       </div>

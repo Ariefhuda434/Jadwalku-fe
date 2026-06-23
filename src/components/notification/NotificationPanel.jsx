@@ -5,7 +5,7 @@ import api from '../../api/axios';
 const typeIcons = {
   deadline: Clock,
   jadwal: Calendar,
-  tugas: AlertTriangle,
+  info: AlertTriangle,
 };
 
 export default function NotificationPanel() {
@@ -53,7 +53,7 @@ export default function NotificationPanel() {
     try {
       await api.put(`/notifications/${id}/read`);
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+        prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch {}
@@ -62,7 +62,7 @@ export default function NotificationPanel() {
   async function markAllRead() {
     try {
       await api.put('/notifications/read-all');
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: 1 })));
       setUnreadCount(0);
     } catch {}
   }
@@ -104,16 +104,16 @@ export default function NotificationPanel() {
               </div>
             ) : (
               notifications.map((n) => {
-                const Icon = typeIcons[n.tipe] || Bell;
+                const Icon = typeIcons[n.type] || Bell;
                 return (
                   <button
                     key={n.id}
                     onClick={() => markRead(n.id)}
                     className={`w-full text-left px-4 py-3 flex items-start gap-3 hover:bg-bg-page transition-colors ${
-                      !n.read ? 'bg-primary-bg/30' : ''
+                      !n.is_read ? 'bg-primary-bg/30' : ''
                     }`}
                   >
-                    <div className={`mt-0.5 ${!n.read ? 'text-primary' : 'text-text-muted'}`}>
+                    <div className={`mt-0.5 ${!n.is_read ? 'text-primary' : 'text-text-muted'}`}>
                       <Icon size={16} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -125,7 +125,7 @@ export default function NotificationPanel() {
                         {n.created_at ? new Date(n.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
                       </p>
                     </div>
-                    {!n.read && (
+                    {!n.is_read && (
                       <span className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5" />
                     )}
                   </button>

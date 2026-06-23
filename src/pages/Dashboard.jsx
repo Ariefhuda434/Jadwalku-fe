@@ -80,8 +80,8 @@ export default function Dashboard() {
               />
             ) : (
               <div className="space-y-3">
-                {jadwalToday.map((j, i) => (
-                  <div key={i} className="flex items-start gap-4 p-3 rounded-xl bg-bg-page border border-border/50 hover:border-primary/30 transition-colors">
+                {jadwalToday.map((j) => (
+                  <div key={j.id} className="flex items-start gap-4 p-3 rounded-xl bg-bg-page border border-border/50 hover:border-primary/30 transition-colors">
                     <div className="min-w-[60px] text-center">
                       <p className="text-sm font-semibold text-primary">{formatTime(j.jam_mulai)}</p>
                       <p className="text-xs text-text-muted">{formatTime(j.jam_selesai)}</p>
@@ -114,8 +114,8 @@ export default function Dashboard() {
               />
             ) : (
               <div className="space-y-3">
-                {sortedTugas.slice(0, 5).map((t, i) => (
-                  <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-bg-page border border-border/50 hover:border-amber-300/50 transition-colors">
+                {sortedTugas.slice(0, 5).map((t) => (
+                  <div key={t.id} className="flex items-start gap-3 p-3 rounded-xl bg-bg-page border border-border/50 hover:border-amber-300/50 transition-colors">
                     <span className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center text-xs ${
                       t.status === 'selesai' ? 'bg-success border-success text-white' : 'border-text-muted'
                     }`}>
@@ -203,8 +203,8 @@ export default function Dashboard() {
               <p className="text-sm text-text-muted">Tidak ada deadline</p>
             ) : (
               <div className="space-y-3">
-                {top3.map((t, i) => (
-                  <div key={i} className="flex items-center justify-between">
+                {top3.map((t) => (
+                  <div key={t.id} className="flex items-center justify-between">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-text-primary truncate">{t.judul}</p>
                     </div>

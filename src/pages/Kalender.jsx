@@ -7,7 +7,7 @@ import EmptyState from '../components/ui/EmptyState';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { ChevronLeft, ChevronRight, Calendar, Clock, MailX, Check } from 'lucide-react';
 
-const dayHeaders = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+const dayHeaders = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
 export default function Kalender() {
   const now = new Date();
@@ -164,8 +164,8 @@ export default function Kalender() {
                     <Calendar size={14} /> Jadwal
                   </h4>
                   <div className="space-y-2">
-                    {selectedDetail.jadwal.map((j, i) => (
-                      <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg bg-primary-bg/50">
+                    {selectedDetail.jadwal.map((j) => (
+                      <div key={j.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-primary-bg/50">
                         <div className="text-center min-w-[52px]">
                           <p className="text-xs font-semibold text-primary">{formatTime(j.jam_mulai)}</p>
                           <p className="text-[10px] text-text-muted">{formatTime(j.jam_selesai)}</p>
@@ -191,8 +191,8 @@ export default function Kalender() {
                     <Clock size={14} /> Deadline Tugas
                   </h4>
                   <div className="space-y-2">
-                    {selectedDetail.tugas.map((t, i) => (
-                      <div key={i} className="flex items-center gap-3 p-2.5 rounded-lg bg-amber-50/50">
+                    {selectedDetail.tugas.map((t) => (
+                      <div key={t.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-amber-50/50">
                         <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center text-[8px] ${
                           t.status === 'selesai' ? 'bg-success border-success text-white' : 'border-text-muted'
                         }`}>

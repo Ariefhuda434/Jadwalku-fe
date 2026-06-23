@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 import { formatTime } from '../utils/helpers';
@@ -17,17 +18,18 @@ const dayOptions = [
   { value: 'Selasa', label: 'Selasa' },
   { value: 'Rabu', label: 'Rabu' },
   { value: 'Kamis', label: 'Kamis' },
-  { value: "Jum'at", label: "Jum'at" },
+  { value: 'Jumat', label: 'Jumat' },
   { value: 'Sabtu', label: 'Sabtu' },
 ];
 
-const hariIndo = ['Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'];
+const hariIndo = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
 export default function Jadwal() {
   const { addToast } = useToast();
+  const location = useLocation();
   const [jadwal, setJadwal] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(location.state?.search || '');
   const [filterHari, setFilterHari] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
