@@ -106,6 +106,16 @@ export default function Tugas() {
   }
 
   async function toggleStatus(item) {
+    if (item.is_group_task) {
+      try {
+        const res = await api.post(`/tugas/${item.id}/submit`);
+        addToast(res.data.status === 'selesai' ? 'Tugas dikumpulkan!' : 'Tugas dibatalkan', 'success');
+        fetchTugas();
+      } catch {
+        addToast('Gagal mengubah status', 'error');
+      }
+      return;
+    }
     const newStatus = item.status === 'selesai' ? 'pending' : 'selesai';
     try {
       await api.put(`/tugas/${item.id}`, { status: newStatus });
@@ -133,7 +143,7 @@ export default function Tugas() {
   if (loading) return <LoadingSpinner size="lg" className="mt-20" />;
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-slide-up">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-heading text-2xl font-bold text-text-primary">Tugas</h1>
@@ -200,35 +210,46 @@ export default function Tugas() {
                 {t.status === 'selesai' && <Check size={12} />}
               </button>
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className={`font-medium ${t.status === 'selesai' ? 'line-through text-text-muted' : 'text-text-primary'}`}>
-                      {t.judul}
-                    </p>
-                    <p className="text-xs text-text-secondary mt-0.5">
-                      {t.mata_kuliah && `${t.mata_kuliah}`}{t.mata_kuliah && t.deadline && ' · '}
-                      {t.deadline && formatDate(t.deadline)}
-                    </p>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className={`font-medium ${t.status === 'selesai' || t.submission_status === 'selesai' ? 'line-through text-text-muted' : 'text-text-primary'}`}>
+                        {t.judul}
+                      </p>
+                      <p className="text-xs text-text-secondary mt-0.5">
+                        {t.mata_kuliah && `${t.mata_kuliah}`}{t.mata_kuliah && t.deadline && ' · '}
+                        {t.deadline && formatDate(t.deadline)}
+                      </p>
+                      {t.is_group_task && (
+                        <p className="text-xs text-amber-600 mt-0.5 flex items-center gap-1">
+                          📋 {t.group_name} · {t.creator_name}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {t.prioritas === 'tinggi' && <Badge variant="danger">Tinggi</Badge>}
+                      {t.prioritas === 'sedang' && <Badge variant="warning">Sedang</Badge>}
+                      {t.prioritas === 'rendah' && <Badge variant="default">Rendah</Badge>}
+                      {t.is_group_task ? (
+                        t.submission_status === 'selesai' ? <Badge variant="success">Dikumpul</Badge> : <Badge variant="danger">Belum</Badge>
+                      ) : (
+                        t.status === 'selesai' && <Badge variant="success">Selesai</Badge>
+                      )}
+                      {!t.is_group_task && (
+                        <>
+                          <button onClick={() => openEdit(t)}
+                            className="p-1.5 text-text-secondary hover:text-primary hover:bg-primary-bg rounded-lg transition-all"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button onClick={() => setDeleteId(t.id)}
+                            className="p-1.5 text-text-secondary hover:text-danger hover:bg-red-50 rounded-lg transition-all"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {t.prioritas === 'tinggi' && <Badge variant="danger">Tinggi</Badge>}
-                    {t.prioritas === 'sedang' && <Badge variant="warning">Sedang</Badge>}
-                    {t.prioritas === 'rendah' && <Badge variant="default">Rendah</Badge>}
-                    {t.status === 'selesai' && <Badge variant="success">Selesai</Badge>}
-                    <button
-                      onClick={() => openEdit(t)}
-                      className="p-1.5 text-text-secondary hover:text-primary hover:bg-primary-bg rounded-lg transition-all"
-                    >
-                      <Pencil size={16} />
-                    </button>
-                    <button
-                      onClick={() => setDeleteId(t.id)}
-                      className="p-1.5 text-text-secondary hover:text-danger hover:bg-red-50 rounded-lg transition-all"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
                 {t.deskripsi && t.status !== 'selesai' && (
                   <p className="text-sm text-text-secondary mt-2 line-clamp-2">{t.deskripsi}</p>
                 )}

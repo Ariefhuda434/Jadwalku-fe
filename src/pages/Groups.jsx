@@ -81,7 +81,7 @@ export default function Groups() {
   if (loading) return <LoadingSpinner size="lg" className="mt-20" />;
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-slide-up">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-heading text-2xl font-bold text-text-primary">Grup Kuliah</h1>

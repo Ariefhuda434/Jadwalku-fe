@@ -16,16 +16,22 @@
     @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200;
   }
   .sidebar-link-active {
-    @apply bg-indigo-800/60 text-white shadow-sm;
+    @apply bg-cyan-700/60 text-white shadow-sm border-l-2 border-cyan-400;
   }
   .sidebar-link-inactive {
-    @apply text-indigo-200 hover:bg-indigo-800/40 hover:text-white;
+    @apply text-cyan-100/70 hover:bg-cyan-900/40 hover:text-white;
   }
   .card-hover {
     @apply transition-all duration-200 ease-out;
   }
   .card-hover:hover {
     @apply -translate-y-0.5 shadow-md;
+  }
+  .card-accent {
+    @apply border-l-4 border-l-primary;
+  }
+  .card-elevated {
+    @apply shadow-lg border-transparent;
   }
   .btn-click {
     @apply active:scale-[0.97] transition-transform duration-100;
@@ -37,15 +43,110 @@
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .animate-spin { animation: spin 0.6s linear infinite; }
-.animate-slide-up { animation: slide-up 0.3s ease-out; }
-.animate-fade-in { animation: fade-in 0.2s ease-out; }
+.animate-slide-up { animation: slide-up 0.35s ease-out; }
+.animate-scale-in { animation: scale-in 0.2s ease-out; }
+
+.rbc-calendar {
+  font-family: 'Inter', sans-serif;
+}
+.rbc-header {
+  @apply py-2 text-xs font-semibold text-text-secondary uppercase tracking-wider bg-bg-page;
+  border-bottom: 1px solid #e2e8f0;
+}
+.rbc-header + .rbc-header {
+  border-left: 1px solid #e2e8f0;
+}
+.rbc-month-view, .rbc-time-view, .rbc-agenda-view {
+  @apply border-border rounded-lg overflow-hidden;
+}
+.rbc-day-bg + .rbc-day-bg {
+  border-left: 1px solid #e2e8f0;
+}
+.rbc-month-row + .rbc-month-row {
+  border-top: 1px solid #e2e8f0;
+}
+.rbc-today {
+  background-color: #ecfeff;
+}
+.rbc-off-range-bg {
+  background-color: #f8fafc;
+}
+.rbc-date-cell {
+  @apply text-xs text-text-secondary;
+  padding: 4px 6px;
+}
+.rbc-date-cell.rbc-now {
+  font-weight: 700;
+  color: #0891b2;
+}
+.rbc-button-link {
+  @apply outline-none;
+}
+.rbc-event {
+  @apply rounded-lg px-2 py-1 text-xs font-medium shadow-sm border-none;
+  background-color: #0891B2;
+  transition: all 0.15s ease;
+  cursor: grab;
+}
+.rbc-event:active {
+  cursor: grabbing;
+}
+.rbc-event:hover {
+  @apply shadow-md;
+  filter: brightness(1.1);
+}
+.rbc-event-label {
+  @apply text-[10px] opacity-80;
+}
+.rbc-show-more {
+  @apply text-primary font-medium text-xs;
+}
+.rbc-toolbar {
+  @apply mb-4 gap-2;
+}
+.rbc-toolbar-label {
+  @apply font-heading text-lg font-semibold text-text-primary;
+}
+.rbc-btn-group button {
+  @apply btn-click px-3 py-1.5 text-sm font-medium rounded-lg border border-border bg-white text-text-secondary hover:bg-bg-page transition-all duration-200;
+}
+.rbc-btn-group button.rbc-active {
+  @apply bg-primary text-white border-primary hover:bg-primary-dark;
+}
+.rbc-agenda-table {
+  @apply border-border text-sm;
+}
+.rbc-agenda-table table {
+  @apply w-full;
+}
+.rbc-agenda-table thead {
+  @apply bg-bg-page;
+}
+.rbc-agenda-table th {
+  @apply px-4 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider text-left border-b border-border;
+}
+.rbc-agenda-table td {
+  @apply px-4 py-3 align-top border-b border-border;
+}
+.rbc-agenda-time-cell {
+  @apply text-xs text-text-secondary whitespace-nowrap;
+}
+.rbc-agenda-event-cell {
+  @apply text-sm text-text-primary;
+}
+.rbc-agenda-event-cell .rbc-event {
+  @apply bg-transparent p-0 shadow-none text-text-primary;
+}
+.rbc-agenda-date-cell {
+  @apply text-xs text-text-secondary font-medium;
+}

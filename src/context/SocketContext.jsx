@@ -22,7 +22,7 @@ export function SocketProvider({ children }) {
     if (socketRef.current?.connected) return;
 
     const token = localStorage.getItem('token');
-    const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001', {
+    const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3002', {
       auth: { token },
     });
 

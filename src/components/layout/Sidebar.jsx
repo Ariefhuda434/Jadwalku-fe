@@ -18,10 +18,12 @@ const bottomMenus = [
 
 export default function Sidebar() {
   return (
-    <aside className="fixed left-0 top-0 h-screen w-[260px] bg-bg-sidebar flex flex-col z-50">
-      <div className="flex items-center gap-3 px-6 h-16 border-b border-indigo-800/50">
-        <img src={logoSrc} className="w-8 h-8" />
-        <span className="font-heading font-semibold text-white text-lg">
+    <aside className="fixed left-0 top-0 h-screen w-[260px] bg-gradient-to-b from-bg-sidebar-start via-bg-sidebar-start to-bg-sidebar-end flex flex-col z-50">
+      <div className="flex items-center gap-3 px-6 h-16 border-b border-cyan-800/30">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg shadow-primary/20">
+          <img src={logoSrc} className="w-5 h-5 brightness-0 invert" />
+        </div>
+        <span className="font-heading font-semibold text-white text-lg tracking-tight">
           JadwalKu
         </span>
       </div>
@@ -45,7 +47,7 @@ export default function Sidebar() {
             </NavLink>
           );
         })}
-        <div className="pt-4 mt-4 border-t border-indigo-800/30">
+        <div className="pt-4 mt-4 border-t border-cyan-800/30">
           {bottomMenus.map((m) => {
             const Icon = m.icon;
             return (

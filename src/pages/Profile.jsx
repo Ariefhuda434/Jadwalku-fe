@@ -63,6 +63,13 @@ export default function Profile() {
     }
   }
 
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+  }
+
   async function togglePush() {
     if (!pushSupported || !vapidKey) return;
 
@@ -78,7 +85,7 @@ export default function Profile() {
       } else {
         const subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: vapidKey,
+          applicationServerKey: urlBase64ToUint8Array(vapidKey),
         });
 
         const subJson = subscription.toJSON();
@@ -131,7 +138,7 @@ export default function Profile() {
   if (loading) return <LoadingSpinner size="lg" className="mt-20" />;
 
   return (
-    <div className="animate-fade-in max-w-2xl mx-auto">
+    <div className="animate-slide-up max-w-2xl mx-auto">
       <h1 className="font-heading text-2xl font-bold text-text-primary mb-6">Profil</h1>
 
       <Card className="p-5 mb-6">

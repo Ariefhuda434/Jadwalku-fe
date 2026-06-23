@@ -1,9 +1,10 @@
 const variants = {
-  primary: 'bg-primary text-white hover:bg-primary-dark shadow-sm',
-  secondary: 'bg-secondary text-white hover:bg-blue-600 shadow-sm',
+  primary: 'bg-primary text-white hover:bg-primary-dark shadow-sm shadow-primary/20',
+  secondary: 'bg-secondary text-white hover:bg-cyan-600 shadow-sm',
   outline: 'border-2 border-primary text-primary hover:bg-primary-bg',
   ghost: 'text-primary hover:bg-primary-bg',
-  danger: 'bg-danger text-white hover:bg-red-600 shadow-sm',
+  danger: 'bg-danger text-white hover:bg-red-600 shadow-sm shadow-danger/20',
+  accent: 'bg-accent-urgent text-white hover:bg-orange-600 shadow-sm shadow-orange-500/20',
 };
 
 const sizes = {

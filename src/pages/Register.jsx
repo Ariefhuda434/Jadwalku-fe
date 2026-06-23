@@ -52,7 +52,7 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-600 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-700 via-cyan-600 to-teal-500 flex items-center justify-center p-4">
       <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-2xl p-8 animate-slide-up">
         <div className="text-center mb-8">
           <img src={logoSrc} className="w-12 h-12 mx-auto mb-3" />

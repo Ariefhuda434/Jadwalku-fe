@@ -4,7 +4,7 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import { useToast } from '../context/ToastContext';
-import { formatTime } from '../utils/helpers';
+import { formatTime, formatDate } from '../utils/helpers';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -17,7 +17,7 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 import {
   Users, UserMinus, UserPlus, Shield, Copy, RefreshCw,
   Megaphone, CalendarRange, Pencil, X, Plus,
-  ArrowLeft, Trash2, LogOut, Crown
+  ArrowLeft, Trash2, LogOut, Crown, ClipboardList, Check
 } from 'lucide-react';
 
 const dayOptions = [
@@ -39,6 +39,7 @@ export default function GroupDetail() {
   const [group, setGroup] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
   const [groupJadwal, setGroupJadwal] = useState([]);
+  const [groupTugas, setGroupTugas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('announcements');
 
@@ -52,6 +53,12 @@ export default function GroupDetail() {
     hari: '', mata_kuliah: '', jam_mulai: '', jam_selesai: '', ruang: '', dosen: ''
   });
   const [jadwalSubmitting, setJadwalSubmitting] = useState(false);
+
+  const [tugasModalOpen, setTugasModalOpen] = useState(false);
+  const [tugasForm, setTugasForm] = useState({
+    judul: '', mata_kuliah: '', deskripsi: '', deadline: '', prioritas: 'sedang'
+  });
+  const [tugasSubmitting, setTugasSubmitting] = useState(false);
 
   const [deleteJadwalId, setDeleteJadwalId] = useState(null);
   const [deleteAnnId, setDeleteAnnId] = useState(null);
@@ -122,14 +129,16 @@ export default function GroupDetail() {
   async function fetchData() {
     setLoading(true);
     try {
-      const [groupRes, annRes, jadwalRes] = await Promise.all([
+      const [groupRes, annRes, jadwalRes, tugasRes] = await Promise.all([
         api.get(`/groups/${id}`),
         api.get(`/groups/${id}/announcements`),
         api.get(`/jadwal?group_id=${id}`),
+        api.get(`/groups/${id}/tugas`),
       ]);
       setGroup(groupRes.data);
       setAnnouncements(annRes.data);
       setGroupJadwal(jadwalRes.data);
+      setGroupTugas(tugasRes.data.tugas || []);
     } catch (err) {
       if (err.response?.status === 404) {
         addToast('Grup tidak ditemukan', 'error');
@@ -181,6 +190,43 @@ export default function GroupDetail() {
       addToast('Gagal membuat pengumuman', 'error');
     } finally {
       setAnnSubmitting(false);
+    }
+  }
+
+  async function fetchTugas() {
+    try {
+      const res = await api.get(`/groups/${id}/tugas`);
+      setGroupTugas(res.data.tugas || []);
+    } catch {}
+  }
+
+  async function handleCreateTugas(e) {
+    e.preventDefault();
+    if (!tugasForm.judul || !tugasForm.deadline) {
+      addToast('Judul dan deadline wajib diisi', 'error');
+      return;
+    }
+    setTugasSubmitting(true);
+    try {
+      await api.post('/tugas', { ...tugasForm, group_id: parseInt(id) });
+      setTugasModalOpen(false);
+      setTugasForm({ judul: '', mata_kuliah: '', deskripsi: '', deadline: '', prioritas: 'sedang' });
+      addToast('Tugas grup berhasil ditambahkan', 'success');
+      fetchTugas();
+    } catch {
+      addToast('Gagal menambah tugas grup', 'error');
+    } finally {
+      setTugasSubmitting(false);
+    }
+  }
+
+  async function handleSubmitTugas(tugasId) {
+    try {
+      const res = await api.post(`/tugas/${tugasId}/submit`);
+      addToast(res.data.status === 'selesai' ? 'Tugas dikumpulkan!' : 'Tugas dibatalkan', 'success');
+      fetchTugas();
+    } catch {
+      addToast('Gagal mengubah status tugas', 'error');
     }
   }
 
@@ -337,7 +383,7 @@ export default function GroupDetail() {
   if (!group) return null;
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-slide-up">
       <button
         onClick={() => navigate('/grup')}
         className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-primary mb-4 transition-colors"
@@ -409,9 +455,10 @@ export default function GroupDetail() {
         </Card>
       )}
 
-      <div className="flex gap-2 mb-6 border-b border-border">
+      <div className="flex gap-2 mb-6 border-b border-border overflow-x-auto">
         {[
           { key: 'announcements', label: 'Pengumuman', icon: Megaphone },
+          { key: 'tugas', label: 'Tugas', icon: ClipboardList },
           { key: 'jadwal', label: 'Jadwal', icon: CalendarRange },
           { key: 'members', label: 'Anggota', icon: Users },
         ].map((tab) => {
@@ -476,6 +523,82 @@ export default function GroupDetail() {
                     )}
                   </div>
                   <p className="text-sm text-text-secondary whitespace-pre-wrap">{ann.message}</p>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'tugas' && (
+        <div>
+          {isAdmin && (
+            <div className="mb-4">
+              <Button onClick={() => {
+                setTugasForm({ judul: '', mata_kuliah: '', deskripsi: '', deadline: '', prioritas: 'sedang' });
+                setTugasModalOpen(true);
+              }} icon={<Plus size={16} />}>
+                Tambah Tugas Grup
+              </Button>
+            </div>
+          )}
+
+          {groupTugas.length === 0 ? (
+            <Card className="p-5">
+              <EmptyState
+                icon={<ClipboardList size={48} className="text-text-muted" />}
+                title="Belum ada tugas grup"
+                description={isAdmin ? 'Buat tugas untuk anggota grup.' : 'Admin belum menambahkan tugas.'}
+                action={isAdmin ? <Button onClick={() => setTugasModalOpen(true)}>Tambah Tugas</Button> : undefined}
+              />
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {groupTugas.map((t) => (
+                <Card key={t.id} className="p-4 flex items-start gap-4" hover={false}>
+                  <button
+                    onClick={() => handleSubmitTugas(t.id)}
+                    className={`mt-0.5 min-w-[22px] h-[22px] rounded-full border-2 flex items-center justify-center text-xs transition-all ${
+                      t.submission_status === 'selesai'
+                        ? 'bg-success border-success text-white'
+                        : 'border-text-muted hover:border-primary'
+                    }`}
+                  >
+                    {t.submission_status === 'selesai' && <Check size={12} />}
+                  </button>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className={`font-medium ${
+                          t.submission_status === 'selesai' ? 'line-through text-text-muted' : 'text-text-primary'
+                        }`}>
+                          {t.judul}
+                        </p>
+                        <p className="text-xs text-text-secondary mt-0.5">
+                          {t.mata_kuliah && `${t.mata_kuliah}`}{t.mata_kuliah && t.deadline && ' · '}
+                          {t.deadline && formatDate(t.deadline)}
+                        </p>
+                        <p className="text-xs text-text-muted mt-0.5">
+                          Oleh {t.creator_name}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {t.prioritas === 'tinggi' && <Badge variant="danger">Tinggi</Badge>}
+                        {t.prioritas === 'sedang' && <Badge variant="warning">Sedang</Badge>}
+                        {t.submission_status === 'selesai' ? (
+                          <Badge variant="success">Dikumpul</Badge>
+                        ) : (
+                          <Badge variant="danger">Belum</Badge>
+                        )}
+                        <Badge variant="warning">
+                          {t.submission_count}/{t.total_members}
+                        </Badge>
+                      </div>
+                    </div>
+                    {t.deskripsi && (
+                      <p className="text-sm text-text-secondary mt-2">{t.deskripsi}</p>
+                    )}
+                  </div>
                 </Card>
               ))}
             </div>
@@ -625,6 +748,57 @@ export default function GroupDetail() {
               {annSubmitting ? 'Mengirim...' : 'Kirim Pengumuman'}
             </Button>
             <Button type="button" variant="outline" className="flex-1" onClick={() => setAnnModalOpen(false)}>
+              Batal
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal isOpen={tugasModalOpen} onClose={() => setTugasModalOpen(false)} title="Tambah Tugas Grup">
+        <form onSubmit={handleCreateTugas} className="space-y-4">
+          <Input
+            label="Judul Tugas"
+            placeholder="Nama tugas"
+            value={tugasForm.judul}
+            onChange={(e) => setTugasForm({ ...tugasForm, judul: e.target.value })}
+          />
+          <Input
+            label="Mata Kuliah (opsional)"
+            placeholder="Nama mata kuliah"
+            value={tugasForm.mata_kuliah}
+            onChange={(e) => setTugasForm({ ...tugasForm, mata_kuliah: e.target.value })}
+          />
+          <div className="w-full">
+            <label className="block text-sm font-medium text-text-primary mb-1.5">Deskripsi (opsional)</label>
+            <textarea
+              className="w-full px-3.5 py-2.5 rounded-lg border border-border bg-white text-text-primary placeholder-text-muted text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+              rows={3}
+              placeholder="Detail tugas..."
+              value={tugasForm.deskripsi}
+              onChange={(e) => setTugasForm({ ...tugasForm, deskripsi: e.target.value })}
+            />
+          </div>
+          <Input
+            label="Deadline"
+            type="date"
+            value={tugasForm.deadline}
+            onChange={(e) => setTugasForm({ ...tugasForm, deadline: e.target.value })}
+          />
+          <Select
+            label="Prioritas"
+            options={[
+              { value: 'rendah', label: 'Rendah' },
+              { value: 'sedang', label: 'Sedang' },
+              { value: 'tinggi', label: 'Tinggi' },
+            ]}
+            value={tugasForm.prioritas}
+            onChange={(e) => setTugasForm({ ...tugasForm, prioritas: e.target.value })}
+          />
+          <div className="flex gap-3 pt-2">
+            <Button type="submit" className="flex-1" disabled={tugasSubmitting}>
+              {tugasSubmitting ? 'Menyimpan...' : 'Tambah Tugas'}
+            </Button>
+            <Button type="button" variant="outline" className="flex-1" onClick={() => setTugasModalOpen(false)}>
               Batal
             </Button>
           </div>

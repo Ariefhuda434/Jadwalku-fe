@@ -62,18 +62,22 @@ export default function Dashboard() {
   if (loading) return <LoadingSpinner size="lg" className="mt-20" />;
 
   return (
-    <div className="animate-fade-in">
-      <h1 className="font-heading text-2xl font-bold text-text-primary mb-1">
-        {getGreeting()}, {user?.username || 'User'}!
-      </h1>
-      <p className="text-text-secondary text-sm mb-6">
-        Ini ringkasan aktivitas Anda hari ini.
-      </p>
+    <div className="animate-slide-up space-y-6">
+      <Card variant="accent" className="p-5 bg-gradient-to-r from-primary-bg to-white" hover={false}>
+        <h1 className="font-heading text-2xl font-bold text-text-primary">
+          {getGreeting()}, {user?.username || 'User'}!
+        </h1>
+        <p className="text-text-secondary text-sm mt-1">
+          {jadwalToday.length > 0
+            ? `Kamu ada ${jadwalToday.length} jadwal hari ini.`
+            : 'Hari ini libur, santai aja!'}
+        </p>
+      </Card>
 
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 lg:w-2/3 space-y-6">
           {/* Jadwal Hari Ini */}
-          <Card className="p-5">
+          <Card variant="accent" className="p-5">
             <h2 className="font-heading font-semibold text-text-primary mb-4 flex items-center gap-2">
               <Calendar size={18} className="text-primary" /> Jadwal Hari Ini —{' '}
               <span className="text-text-secondary font-normal">{today}</span>
@@ -113,7 +117,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Deadline Tugas Terdekat */}
-          <Card className="p-5">
+          <Card variant="accent" className="p-5">
             <h2 className="font-heading font-semibold text-text-primary mb-4 flex items-center gap-2">
               <AlertTriangle size={18} className="text-accent-urgent" /> Deadline Tugas Terdekat
             </h2>

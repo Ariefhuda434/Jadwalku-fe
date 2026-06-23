@@ -1,26 +1,55 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { useToast } from '../context/ToastContext';
+import { useSocket } from '../context/SocketContext';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import { Smartphone, RefreshCw, MessageCircle } from 'lucide-react';
+import { Smartphone, RefreshCw, MessageCircle, ScanLine } from 'lucide-react';
 
 export default function WhatsAppPage() {
-  const { addToast } = useToast();
+  const socket = useSocket();
   const [status, setStatus] = useState(null);
+  const [qrCode, setQrCode] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [countdown, setCountdown] = useState(0);
 
   useEffect(() => {
     fetchStatus();
-    const interval = setInterval(fetchStatus, 3000);
+    const interval = setInterval(fetchStatus, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleQR = (dataURL) => { setQrCode(dataURL); };
+    const handleStatus = (s) => {
+      setStatus((prev) => ({ ...prev, status: s }));
+      if (s === 'connected') setQrCode(null);
+      if (s === 'disconnected') setQrCode(null);
+    };
+    socket.on('whatsapp:qr', handleQR);
+    socket.on('whatsapp:status', handleStatus);
+    return () => {
+      socket.off('whatsapp:qr', handleQR);
+      socket.off('whatsapp:status', handleStatus);
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    if (qrCode) {
+      setCountdown(150);
+      const t = setInterval(() => {
+        setCountdown((c) => { if (c <= 1) { clearInterval(t); return 0; } return c - 1; });
+      }, 1000);
+      return () => clearInterval(t);
+    }
+  }, [qrCode]);
 
   async function fetchStatus() {
     try {
       const res = await api.get('/whatsapp/status');
       setStatus(res.data);
+      if (res.data.qr) setQrCode(res.data.qr);
     } catch {
       setStatus({ status: 'error' });
     } finally {
@@ -44,7 +73,7 @@ export default function WhatsAppPage() {
   if (loading) return <LoadingSpinner size="lg" className="mt-20" />;
 
   return (
-    <div className="animate-fade-in max-w-xl mx-auto">
+    <div className="animate-slide-up max-w-xl mx-auto">
       <h1 className="font-heading text-2xl font-bold text-text-primary mb-6 flex items-center gap-2">
         <MessageCircle size={24} className="text-primary" /> WhatsApp
       </h1>
@@ -72,20 +101,36 @@ export default function WhatsAppPage() {
           </div>
         )}
 
-        {status?.status === 'waiting_scan' && status?.qr && (
+        {(status?.status === 'waiting_scan' && qrCode) && (
           <div className="text-center">
-            <div className="bg-white p-4 rounded-xl inline-block mb-3 border border-border">
+            <div className="bg-white p-4 rounded-xl inline-block mb-3 border border-border shadow-sm">
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(status.qr)}`}
+                src={qrCode}
                 alt="QR Code WhatsApp"
                 className="mx-auto"
-                width={250}
-                height={250}
+                width={300}
+                height={300}
               />
             </div>
-            <p className="text-xs text-text-secondary">
-              Scan QR code ini dengan WhatsApp kamu &gt; Menu &gt; Linked Devices
-            </p>
+            <div className="flex items-center justify-center gap-2 text-xs text-text-secondary mb-2">
+              <ScanLine size={14} />
+              <span>Scan QR ini dengan WhatsApp kamu</span>
+            </div>
+            <div className="flex items-center justify-center gap-1">
+              <RefreshCw size={12} className={countdown > 0 ? 'animate-spin' : ''} />
+              <span className="text-xs text-text-secondary">
+                {countdown > 0
+                  ? `QR diperbarui otomatis dalam ${countdown}s`
+                  : 'Memperbarui QR...'}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {status?.status === 'waiting_scan' && !qrCode && (
+          <div className="text-center py-6">
+            <LoadingSpinner size="md" />
+            <p className="text-xs text-text-secondary mt-3">Menghasilkan QR code...</p>
           </div>
         )}
 
@@ -96,6 +141,12 @@ export default function WhatsAppPage() {
             <p className="text-xs text-text-secondary mt-1">
               Server akan mencoba menyambung kembali secara otomatis.
             </p>
+          </div>
+        )}
+
+        {status?.status === 'error' && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
+            <p className="text-sm font-medium text-danger">Gagal mendapatkan status</p>
           </div>
         )}
       </Card>
