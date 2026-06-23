@@ -98,9 +98,14 @@ export default function Dashboard() {
                         {j.dosen && `${j.dosen} · `}{j.ruang || ''}
                       </p>
                     </div>
-                    {j.ruang && (
-                      <Badge variant="default">{j.ruang}</Badge>
-                    )}
+                    <div className="flex gap-1.5 items-center">
+                      {j.is_group_schedule === 1 && j.group_name && (
+                        <Badge variant="warning">{j.group_name}</Badge>
+                      )}
+                      {j.ruang && (
+                        <Badge variant="default">{j.ruang}</Badge>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

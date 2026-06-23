@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Bell, BellOff, CheckCheck, X, Clock, Calendar, AlertTriangle } from 'lucide-react';
 import api from '../../api/axios';
+import { useSocket } from '../../context/SocketContext';
 
 const typeIcons = {
   deadline: Clock,
@@ -13,6 +14,7 @@ export default function NotificationPanel() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const panelRef = useRef(null);
+  const socket = useSocket();
 
   useEffect(() => {
     fetchNotifications();
@@ -20,6 +22,16 @@ export default function NotificationPanel() {
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handler = (notification) => {
+      setNotifications((prev) => [notification, ...prev]);
+      setUnreadCount((prev) => prev + 1);
+    };
+    socket.on('notification:new', handler);
+    return () => socket.off('notification:new', handler);
+  }, [socket]);
 
   useEffect(() => {
     function handleClick(e) {

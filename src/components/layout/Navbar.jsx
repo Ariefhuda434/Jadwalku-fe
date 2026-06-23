@@ -104,7 +104,9 @@ export default function Navbar() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-text-primary truncate">{j.mata_kuliah}</p>
-                          {j.dosen && <p className="text-xs text-text-secondary truncate">{j.dosen}</p>}
+                          <p className="text-xs text-text-secondary truncate">
+                            {j.group_name ? `${j.group_name}` : ''}{j.group_name && j.dosen ? ' · ' : ''}{j.dosen || ''}
+                          </p>
                         </div>
                       </button>
                     ))}

@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CalendarRange, CheckSquare, Calendar, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, CalendarRange, CheckSquare, Calendar, HelpCircle, Users } from 'lucide-react';
 import logoSrc from '../../assets/logo.svg';
 
 const menus = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/jadwal', label: 'Jadwal', icon: CalendarRange },
   { to: '/tugas', label: 'Tugas', icon: CheckSquare },
+  { to: '/grup', label: 'Grup', icon: Users },
   { to: '/kalender', label: 'Kalender', icon: Calendar },
   { to: '/faq', label: 'FAQ', icon: HelpCircle },
 ];

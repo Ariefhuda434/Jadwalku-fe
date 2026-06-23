@@ -179,7 +179,12 @@ export default function Jadwal() {
                       {j.dosen && `${j.dosen}`}{j.dosen && j.ruang && ' · '}{j.ruang || ''}
                     </p>
                   </div>
-                  {j.ruang && <Badge>{j.ruang}</Badge>}
+                  <div className="flex gap-1.5 items-center">
+                    {j.is_group_schedule === 1 && j.group_name && (
+                      <Badge variant="warning">{j.group_name}</Badge>
+                    )}
+                    {j.ruang && <Badge>{j.ruang}</Badge>}
+                  </div>
                   <div className="flex gap-1.5">
                     <button
                       onClick={() => openEdit(j)}

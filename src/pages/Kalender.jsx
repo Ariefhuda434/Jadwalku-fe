@@ -178,7 +178,12 @@ export default function Kalender() {
                             </p>
                           )}
                         </div>
-                        {j.ruang && <Badge>{j.ruang}</Badge>}
+                        <div className="flex gap-1">
+                          {j.is_group_schedule === 1 && j.group_name && (
+                            <Badge variant="warning">{j.group_name}</Badge>
+                          )}
+                          {j.ruang && <Badge>{j.ruang}</Badge>}
+                        </div>
                       </div>
                     ))}
                   </div>
