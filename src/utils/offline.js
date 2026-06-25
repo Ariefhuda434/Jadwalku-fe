@@ -10,6 +10,7 @@ function openDB() {
       if (!db.objectStoreNames.contains('tugas')) db.createObjectStore('tugas', { keyPath: 'id' });
       if (!db.objectStoreNames.contains('groups')) db.createObjectStore('groups', { keyPath: 'id' });
       if (!db.objectStoreNames.contains('notifications')) db.createObjectStore('notifications', { keyPath: 'id' });
+    if (!db.objectStoreNames.contains('semesters')) db.createObjectStore('semesters', { keyPath: 'id' });
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);

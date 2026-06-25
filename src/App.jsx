@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { SocketProvider } from './context/SocketContext';
+import { SemesterProvider } from './context/SemesterContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
 import Login from './pages/Login';
@@ -21,6 +22,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <SocketProvider>
+          <SemesterProvider>
           <ToastProvider>
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -44,6 +46,7 @@ export default function App() {
               </Route>
             </Routes>
           </ToastProvider>
+          </SemesterProvider>
         </SocketProvider>
       </AuthProvider>
     </BrowserRouter>

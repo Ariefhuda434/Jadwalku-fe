@@ -16,6 +16,7 @@ if ('indexedDB' in window) {
         api.get('/tugas').then((r) => cacheData('tugas', r.data)).catch(() => {});
         api.get('/groups').then((r) => cacheData('groups', r.data)).catch(() => {});
         api.get('/notifications').then((r) => cacheData('notifications', r.data)).catch(() => {});
+        api.get('/semesters').then((r) => cacheData('semesters', r.data)).catch(() => {});
       });
     }
   });
