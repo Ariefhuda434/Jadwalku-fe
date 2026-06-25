@@ -26,12 +26,12 @@ export function ToastProvider({ children }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`animate-slide-up flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-sm font-medium text-white min-w-[300px] max-w-[400px] ${
-              t.type === 'success' ? 'bg-emerald-500' : 'bg-red-500'
+            className={`animate-slide-up flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-sm font-medium min-w-[300px] max-w-[400px] ${
+              t.type === 'success' ? 'bg-emerald-500 text-white' : t.type === 'warning' ? 'bg-orange-500 text-white' : 'bg-red-500 text-white'
             }`}
           >
             <span className="text-lg">
-              {t.type === 'success' ? '✓' : '✕'}
+              {t.type === 'success' ? '✓' : t.type === 'warning' ? '⚠' : '✕'}
             </span>
             <span className="flex-1">{t.message}</span>
             <button

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 import { formatTime } from '../utils/helpers';
@@ -10,7 +10,7 @@ import Modal from '../components/ui/Modal';
 import Badge from '../components/ui/Badge';
 import EmptyState from '../components/ui/EmptyState';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import { Pencil, X, Calendar } from 'lucide-react';
+import { Pencil, X, Calendar, AlertTriangle } from 'lucide-react';
 
 const dayOptions = [
   { value: 'Senin', label: 'Senin' },
@@ -40,6 +40,9 @@ export default function Jadwal() {
     dosen: '',
   });
   const [submitting, setSubmitting] = useState(false);
+  const [conflicts, setConflicts] = useState([]);
+  const [checkingConflict, setCheckingConflict] = useState(false);
+  const conflictTimer = useRef(null);
 
   useEffect(() => {
     fetchJadwal();
@@ -58,6 +61,35 @@ export default function Jadwal() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (conflictTimer.current) clearTimeout(conflictTimer.current);
+    if (!form.hari || !form.jam_mulai || !form.jam_selesai) {
+      setConflicts([]);
+      return;
+    }
+    setCheckingConflict(true);
+    conflictTimer.current = setTimeout(async () => {
+      try {
+        const res = await api.get('/jadwal/check-conflict', {
+          params: {
+            hari: form.hari,
+            jam_mulai: form.jam_mulai,
+            jam_selesai: form.jam_selesai,
+            exclude_id: editItem?.id || undefined,
+          },
+        });
+        setConflicts(res.data.conflicts || []);
+      } catch {
+        setConflicts([]);
+      } finally {
+        setCheckingConflict(false);
+      }
+    }, 400);
+    return () => {
+      if (conflictTimer.current) clearTimeout(conflictTimer.current);
+    };
+  }, [form.hari, form.jam_mulai, form.jam_selesai, editItem?.id]);
 
   function openAdd() {
     setEditItem(null);
@@ -86,14 +118,19 @@ export default function Jadwal() {
     }
     setSubmitting(true);
     try {
+      let res;
       if (editItem) {
-        await api.put(`/jadwal/${editItem.id}`, form);
+        res = await api.put(`/jadwal/${editItem.id}`, form);
         addToast('Jadwal berhasil diperbarui', 'success');
       } else {
-        await api.post('/jadwal', form);
+        res = await api.post('/jadwal', form);
         addToast('Jadwal berhasil ditambahkan', 'success');
       }
+      if (res.data.conflicts?.length > 0) {
+        addToast('Perhatian: jadwal bentrok dengan ' + res.data.conflicts.map(c => c.mata_kuliah).join(', '), 'warning');
+      }
       setModalOpen(false);
+      setConflicts([]);
       fetchJadwal();
     } catch {
       addToast('Gagal menyimpan jadwal', 'error');
@@ -246,6 +283,25 @@ export default function Jadwal() {
               onChange={(e) => setForm({ ...form, jam_selesai: e.target.value })}
             />
           </div>
+          {conflicts.length > 0 && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-start gap-2.5">
+              <AlertTriangle size={18} className="text-orange-500 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-orange-700">Bentrok dengan jadwal lain:</p>
+                <ul className="mt-1 space-y-1">
+                  {conflicts.map((c) => (
+                    <li key={c.id} className="text-sm text-orange-600">
+                      {c.mata_kuliah} ({c.jam_mulai} - {c.jam_selesai})
+                      {c.ruang ? ` · ${c.ruang}` : ''}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+          {checkingConflict && (
+            <p className="text-xs text-text-muted">Memeriksa bentrok...</p>
+          )}
           <Input
             label="Ruang (opsional)"
             placeholder="Nama ruangan"
