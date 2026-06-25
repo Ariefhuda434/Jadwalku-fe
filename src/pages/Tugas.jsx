@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useSemester } from '../context/SemesterContext';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 import { formatDate } from '../utils/helpers';
@@ -25,7 +24,6 @@ const priorityOptions = [
 
 export default function Tugas() {
   const { addToast } = useToast();
-  const { activeSemester } = useSemester();
   const location = useLocation();
   const [tugas, setTugas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,13 +44,12 @@ export default function Tugas() {
 
   useEffect(() => {
     fetchTugas();
-  }, [search, activeTab, activeSemester]);
+  }, [search, activeTab]);
 
   async function fetchTugas() {
     setLoading(true);
     try {
       const params = {};
-      if (activeSemester?.id) params.semester_id = activeSemester.id;
       if (search) params.search = search;
       if (activeTab === 'Aktif') params.status = 'pending';
       else if (activeTab === 'Selesai') params.status = 'selesai';
@@ -93,10 +90,10 @@ export default function Tugas() {
     setSubmitting(true);
     try {
       if (editItem) {
-        await api.put(`/tugas/${editItem.id}`, { ...form, semester_id: activeSemester?.id });
+        await api.put(`/tugas/${editItem.id}`, form);
         addToast('Tugas berhasil diperbarui', 'success');
       } else {
-        await api.post('/tugas', { ...form, semester_id: activeSemester?.id });
+        await api.post('/tugas', form);
         addToast('Tugas berhasil ditambahkan', 'success');
       }
       setModalOpen(false);
@@ -121,7 +118,7 @@ export default function Tugas() {
     }
     const newStatus = item.status === 'selesai' ? 'pending' : 'selesai';
     try {
-      await api.put(`/tugas/${item.id}`, { status: newStatus, semester_id: activeSemester?.id });
+      await api.put(`/tugas/${item.id}`, { status: newStatus });
       addToast(newStatus === 'selesai' ? 'Tugas selesai!' : 'Tugas diaktifkan kembali', 'success');
       fetchTugas();
     } catch {

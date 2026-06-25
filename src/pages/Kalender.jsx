@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calendar as BigCalendar, dateFnsLocalizer, Views } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
-import { format, parse, startOfWeek, getDay, addHours, addDays, startOfMonth, endOfMonth, eachWeekOfInterval } from 'date-fns';
+import { format, parse, startOfWeek, getDay, addHours, addDays, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { id } from 'date-fns/locale';
 import api from '../api/axios';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Badge from '../components/ui/Badge';
+import Button from '../components/ui/Button';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
+import Modal from '../components/ui/Modal';
 import { useToast } from '../context/ToastContext';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
@@ -37,6 +40,9 @@ export default function Kalender() {
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState(Views.MONTH);
   const [date, setDate] = useState(new Date());
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     Promise.all([api.get('/jadwal'), api.get('/tugas')])
@@ -51,12 +57,37 @@ export default function Kalender() {
   const events = useMemo(() => {
     const result = [];
     const dayOrder = { Minggu: 0, Senin: 1, Selasa: 2, Rabu: 3, Kamis: 4, Jumat: 5, Sabtu: 6 };
+    const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-    const weeks = view === Views.MONTH
-      ? eachWeekOfInterval({ start: startOfMonth(date), end: endOfMonth(date) }, { weekStartsOn: 1 })
-      : [startOfWeek(date, { weekStartsOn: 1 })];
+    if (view === Views.MONTH) {
+      const monthStart = startOfMonth(date);
+      const monthEnd = endOfMonth(date);
+      const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-    for (const weekStart of weeks) {
+      for (const day of days) {
+        const dayName = dayNames[day.getDay()];
+        for (const j of jadwal) {
+          if (j.hari !== dayName) continue;
+          const [sh, sm] = (j.jam_mulai || '00:00').split(':').map(Number);
+          const [eh, em] = (j.jam_selesai || '00:00').split(':').map(Number);
+          const start = new Date(day); start.setHours(sh, sm);
+          const end = new Date(day); end.setHours(eh, em);
+
+          result.push({
+            id: `j-${j.id}-${format(day, 'yyyy-MM-dd')}`,
+            title: j.mata_kuliah + (j.ruang ? ` (${j.ruang})` : ''),
+            start,
+            end: end <= start ? addHours(end, 1) : end,
+            resource: j,
+            is_group: !!j.is_group_schedule,
+            is_tugas: false,
+            dbId: j.id,
+            type: 'jadwal',
+          });
+        }
+      }
+    } else {
+      const weekStart = startOfWeek(date, { weekStartsOn: 1 });
       for (const j of jadwal) {
         const dayIndex = dayOrder[j.hari] ?? 0;
         const baseDate = addDays(weekStart, dayIndex);
@@ -139,6 +170,28 @@ export default function Kalender() {
     }
   }, [addToast]);
 
+  const onSelectEvent = useCallback((event) => {
+    setSelectedEvent(event);
+  }, []);
+
+  async function confirmDelete() {
+    if (!deleteId) return;
+    setDeleteLoading(true);
+    try {
+      await api.delete(`/jadwal/${deleteId}`);
+      setJadwal((prev) => prev.filter((j) => j.id !== deleteId));
+      addToast('Jadwal berhasil dihapus', 'success');
+      setSelectedEvent(null);
+    } catch {
+      addToast('Gagal menghapus jadwal', 'error');
+    } finally {
+      setDeleteLoading(false);
+      setDeleteId(null);
+    }
+  }
+
+  const formatTime = (d) => format(d, 'HH:mm');
+
   if (loading) return <LoadingSpinner size="lg" className="mt-20" />;
 
   return (
@@ -166,6 +219,7 @@ export default function Kalender() {
           onNavigate={setDate}
           onEventDrop={onEventDrop}
           onEventResize={onEventResize}
+          onSelectEvent={onSelectEvent}
           resizable
           eventPropGetter={eventStyleGetter}
           draggableAccessor={(event) => !event.is_group && !event.is_tugas}
@@ -190,6 +244,86 @@ export default function Kalender() {
           }}
         />
       </div>
+
+      <Modal isOpen={!!selectedEvent} onClose={() => setSelectedEvent(null)} title="Detail Jadwal" size="sm">
+        {selectedEvent && (
+          <div>
+            {selectedEvent.is_tugas ? (
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs text-text-secondary">Tugas</p>
+                  <p className="font-medium text-text-primary">{selectedEvent.resource?.judul}</p>
+                </div>
+                {selectedEvent.resource?.mata_kuliah && (
+                  <div>
+                    <p className="text-xs text-text-secondary">Mata Kuliah</p>
+                    <p className="text-text-primary">{selectedEvent.resource.mata_kuliah}</p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-xs text-text-secondary">Deadline</p>
+                  <p className="text-text-primary">{format(selectedEvent.start, 'dd MMMM yyyy', { locale: id })}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs text-text-secondary">Mata Kuliah</p>
+                  <p className="font-medium text-text-primary">{selectedEvent.resource?.mata_kuliah}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-text-secondary">Hari</p>
+                  <p className="text-text-primary">{selectedEvent.resource?.hari}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-text-secondary">Waktu</p>
+                  <p className="text-text-primary">{selectedEvent.resource?.jam_mulai} - {selectedEvent.resource?.jam_selesai}</p>
+                </div>
+                {selectedEvent.resource?.ruang && (
+                  <div>
+                    <p className="text-xs text-text-secondary">Ruang</p>
+                    <p className="text-text-primary">{selectedEvent.resource.ruang}</p>
+                  </div>
+                )}
+                {selectedEvent.resource?.dosen && (
+                  <div>
+                    <p className="text-xs text-text-secondary">Dosen</p>
+                    <p className="text-text-primary">{selectedEvent.resource.dosen}</p>
+                  </div>
+                )}
+                {selectedEvent.is_group && (
+                  <div>
+                    <Badge variant="warning">Jadwal Grup</Badge>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!selectedEvent.is_tugas && !selectedEvent.is_group && (
+              <div className="mt-6 pt-4 border-t border-border">
+                <Button variant="danger" onClick={() => { setDeleteId(selectedEvent.dbId); setSelectedEvent(null); }} className="w-full">
+                  Hapus Jadwal
+                </Button>
+              </div>
+            )}
+
+            {selectedEvent.is_group && (
+              <p className="mt-4 text-xs text-text-secondary text-center">
+                Hapus jadwal grup melalui halaman grup.
+              </p>
+            )}
+          </div>
+        )}
+      </Modal>
+
+      <ConfirmDialog
+        isOpen={!!deleteId}
+        title="Hapus Jadwal"
+        message="Apakah Anda yakin ingin menghapus jadwal ini? Tindakan ini tidak dapat dibatalkan."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+        loading={deleteLoading}
+      />
     </div>
   );
 }

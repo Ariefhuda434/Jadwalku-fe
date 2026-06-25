@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSemester } from '../context/SemesterContext';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 import { formatTime } from '../utils/helpers';
@@ -40,7 +39,6 @@ const tipeColors = {
 
 export default function Jadwal() {
   const { addToast } = useToast();
-  const { activeSemester } = useSemester();
   const [jadwal, setJadwal] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterHari, setFilterHari] = useState('');
@@ -63,13 +61,12 @@ export default function Jadwal() {
 
   useEffect(() => {
     fetchJadwal();
-  }, [filterHari, activeSemester]);
+  }, [filterHari]);
 
   async function fetchJadwal() {
     setLoading(true);
     try {
       const params = {};
-      if (activeSemester?.id) params.semester_id = activeSemester.id;
       if (filterHari) params.hari = filterHari;
       const res = await api.get('/jadwal', { params });
       setJadwal(res.data);
@@ -94,7 +91,6 @@ export default function Jadwal() {
             hari: form.hari,
             jam_mulai: form.jam_mulai,
             jam_selesai: form.jam_selesai,
-            semester_id: activeSemester?.id || undefined,
             exclude_id: editItem?.id || undefined,
           },
         });
@@ -108,7 +104,7 @@ export default function Jadwal() {
     return () => {
       if (conflictTimer.current) clearTimeout(conflictTimer.current);
     };
-  }, [form.hari, form.jam_mulai, form.jam_selesai, editItem?.id, activeSemester?.id]);
+  }, [form.hari, form.jam_mulai, form.jam_selesai, editItem?.id]);
 
   function openAdd() {
     setEditItem(null);
@@ -140,10 +136,10 @@ export default function Jadwal() {
     try {
       let res;
       if (editItem) {
-        res = await api.put(`/jadwal/${editItem.id}`, { ...form, semester_id: activeSemester?.id });
+        res = await api.put(`/jadwal/${editItem.id}`, form);
         addToast('Jadwal berhasil diperbarui', 'success');
       } else {
-        res = await api.post('/jadwal', { ...form, semester_id: activeSemester?.id });
+        res = await api.post('/jadwal', form);
         addToast('Jadwal berhasil ditambahkan', 'success');
       }
       if (res.data.conflicts?.length > 0) {

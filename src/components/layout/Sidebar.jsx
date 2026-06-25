@@ -28,7 +28,7 @@ export default function Sidebar() {
         </span>
       </div>
 
-      <nav className="flex-1 px-3 py-6 space-y-1">
+      <nav className="flex-1 px-3 py-4 space-y-1">
         {menus.map((m) => {
           const Icon = m.icon;
           return (

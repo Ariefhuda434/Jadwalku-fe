@@ -1,31 +1,47 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../api/axios';
 import { useSocket } from '../context/SocketContext';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
+import Button from '../components/ui/Button';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import { Smartphone, RefreshCw, MessageCircle, ScanLine } from 'lucide-react';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
+import { Smartphone, RefreshCw, MessageCircle, ScanLine, LogOut } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 export default function WhatsAppPage() {
   const socket = useSocket();
+  const { addToast } = useToast();
   const [status, setStatus] = useState(null);
   const [qrCode, setQrCode] = useState(null);
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState(0);
+  const [disconnectConfirm, setDisconnectConfirm] = useState(false);
 
-  useEffect(() => {
-    fetchStatus();
-    const interval = setInterval(fetchStatus, 5000);
-    return () => clearInterval(interval);
+  const fetchStatus = useCallback(async () => {
+    try {
+      const res = await api.get('/whatsapp/status');
+      setStatus((prev) => ({ ...prev, ...res.data }));
+      if (res.data.qr) setQrCode(res.data.qr);
+    } catch {
+      setStatus({ status: 'error' });
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
+    fetchStatus();
+  }, [fetchStatus]);
+
+  useEffect(() => {
     if (!socket) return;
-    const handleQR = (dataURL) => { setQrCode(dataURL); };
+    const handleQR = (dataURL) => { setQrCode(dataURL); setCountdown(30); };
     const handleStatus = (s) => {
       setStatus((prev) => ({ ...prev, status: s }));
-      if (s === 'connected') setQrCode(null);
-      if (s === 'disconnected') setQrCode(null);
+      if (s === 'connected') { setQrCode(null); setCountdown(0); }
+      if (s === 'disconnected') { setCountdown(0); }
+      if (s === 'waiting_scan') fetchStatus();
     };
     socket.on('whatsapp:qr', handleQR);
     socket.on('whatsapp:status', handleStatus);
@@ -33,27 +49,26 @@ export default function WhatsAppPage() {
       socket.off('whatsapp:qr', handleQR);
       socket.off('whatsapp:status', handleStatus);
     };
-  }, [socket]);
+  }, [socket, fetchStatus]);
 
   useEffect(() => {
-    if (qrCode) {
-      setCountdown(150);
-      const t = setInterval(() => {
-        setCountdown((c) => { if (c <= 1) { clearInterval(t); return 0; } return c - 1; });
-      }, 1000);
-      return () => clearInterval(t);
-    }
-  }, [qrCode]);
+    if (countdown <= 0) return;
+    const t = setInterval(() => {
+      setCountdown((c) => { if (c <= 1) { clearInterval(t); return 0; } return c - 1; });
+    }, 1000);
+    return () => clearInterval(t);
+  }, [countdown]);
 
-  async function fetchStatus() {
+  async function handleDisconnect() {
     try {
-      const res = await api.get('/whatsapp/status');
-      setStatus(res.data);
-      if (res.data.qr) setQrCode(res.data.qr);
+      await api.post('/whatsapp/disconnect');
+      setQrCode(null);
+      setCountdown(0);
+      setDisconnectConfirm(false);
+      addToast('WhatsApp terputus. Scan QR untuk konek ulang.', 'info');
+      fetchStatus();
     } catch {
-      setStatus({ status: 'error' });
-    } finally {
-      setLoading(false);
+      addToast('Gagal memutus koneksi WhatsApp', 'error');
     }
   }
 
@@ -98,10 +113,15 @@ export default function WhatsAppPage() {
             <p className="text-xs text-text-secondary mt-1">
               Pengumuman grup akan otomatis dikirim ke WA anggota.
             </p>
+            <div className="mt-4">
+              <Button variant="outline" size="sm" onClick={() => setDisconnectConfirm(true)}>
+                <LogOut size={14} /> Putuskan Koneksi
+              </Button>
+            </div>
           </div>
         )}
 
-        {(status?.status === 'waiting_scan' && qrCode) && (
+        {qrCode && (
           <div className="text-center">
             <div className="bg-white p-4 rounded-xl inline-block mb-3 border border-border shadow-sm">
               <img
@@ -134,13 +154,23 @@ export default function WhatsAppPage() {
           </div>
         )}
 
-        {status?.status === 'disconnected' && (
+        {status?.status === 'disconnected' && !qrCode && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
             <Smartphone size={32} className="text-danger mx-auto mb-2" />
             <p className="text-sm font-medium text-danger">WhatsApp terputus</p>
             <p className="text-xs text-text-secondary mt-1">
-              Server akan mencoba menyambung kembali secara otomatis.
+              {countdown > 0
+                ? 'Menyambung kembali...'
+                : 'Hubungkan dengan scan QR di atas atau klik tombol di bawah.'}
             </p>
+            <div className="mt-3 flex gap-2 justify-center">
+              <Button variant="outline" size="sm" onClick={() => { setCountdown(1); fetchStatus(); }}>
+                <RefreshCw size={14} /> Refresh
+              </Button>
+              <Button variant="danger" size="sm" onClick={handleDisconnect}>
+                <LogOut size={14} /> Reset & Scan Ulang
+              </Button>
+            </div>
           </div>
         )}
 
@@ -159,6 +189,15 @@ export default function WhatsAppPage() {
           <li>Saat admin membuat pengumuman, otomatis terkirim ke WA anggota</li>
         </ol>
       </Card>
+      <ConfirmDialog
+        isOpen={disconnectConfirm}
+        title="Putuskan Koneksi WhatsApp"
+        message="WhatsApp akan terputus dan sesi login akan dihapus. Anda perlu scan QR ulang untuk terhubung kembali."
+        confirmText="Putuskan"
+        variant="danger"
+        onConfirm={handleDisconnect}
+        onCancel={() => setDisconnectConfirm(false)}
+      />
     </div>
   );
 }

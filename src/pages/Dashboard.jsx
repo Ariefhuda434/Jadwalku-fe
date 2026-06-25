@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useSemester } from '../context/SemesterContext';
 import api from '../api/axios';
 import { getGreeting, getTodayDay, getMonthDays, getMonthName, formatTime } from '../utils/helpers';
 import Card from '../components/ui/Card';
@@ -20,7 +19,6 @@ const tipeLabels = { kuliah: 'Kuliah', praktikum: 'Praktikum', seminar: 'Seminar
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { activeSemester } = useSemester();
   const [data, setData] = useState(null);
   const [allTugas, setAllTugas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,14 +29,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchDashboard();
-  }, [activeSemester]);
+  }, []);
 
   async function fetchDashboard() {
     try {
-      const semesterParam = activeSemester?.id ? { semester_id: activeSemester.id } : {};
       const [dashRes, tugasRes] = await Promise.all([
-        api.get('/dashboard', { params: semesterParam }),
-        api.get('/tugas', { params: semesterParam }),
+        api.get('/dashboard'),
+        api.get('/tugas'),
       ]);
       setData(dashRes.data);
       setAllTugas(tugasRes.data);
