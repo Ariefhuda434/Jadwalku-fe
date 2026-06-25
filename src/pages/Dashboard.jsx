@@ -8,6 +8,15 @@ import EmptyState from '../components/ui/EmptyState';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { Calendar, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 
+const tipeColors = {
+  kuliah: 'bg-blue-100 text-blue-700',
+  praktikum: 'bg-orange-100 text-orange-700',
+  seminar: 'bg-purple-100 text-purple-700',
+  responsi: 'bg-green-100 text-green-700',
+};
+
+const tipeLabels = { kuliah: 'Kuliah', praktikum: 'Praktikum', seminar: 'Seminar', responsi: 'Responsi' };
+
 export default function Dashboard() {
   const { user } = useAuth();
   const [data, setData] = useState(null);
@@ -103,6 +112,11 @@ export default function Dashboard() {
                       </p>
                     </div>
                     <div className="flex gap-1.5 items-center">
+                      {j.tipe && (
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${tipeColors[j.tipe] || tipeColors.kuliah}`}>
+                          {tipeLabels[j.tipe] || j.tipe}
+                        </span>
+                      )}
                       {j.is_group_schedule === 1 && j.group_name && (
                         <Badge variant="warning">{j.group_name}</Badge>
                       )}

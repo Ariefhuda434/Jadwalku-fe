@@ -23,6 +23,20 @@ const dayOptions = [
 
 const hariIndo = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
+const tipeOptions = [
+  { value: 'kuliah', label: 'Kuliah' },
+  { value: 'praktikum', label: 'Praktikum' },
+  { value: 'seminar', label: 'Seminar' },
+  { value: 'responsi', label: 'Responsi' },
+];
+
+const tipeColors = {
+  kuliah: 'bg-blue-100 text-blue-700',
+  praktikum: 'bg-orange-100 text-orange-700',
+  seminar: 'bg-purple-100 text-purple-700',
+  responsi: 'bg-green-100 text-green-700',
+};
+
 export default function Jadwal() {
   const { addToast } = useToast();
   const [jadwal, setJadwal] = useState([]);
@@ -38,6 +52,7 @@ export default function Jadwal() {
     jam_selesai: '',
     ruang: '',
     dosen: '',
+    tipe: 'kuliah',
   });
   const [submitting, setSubmitting] = useState(false);
   const [conflicts, setConflicts] = useState([]);
@@ -93,7 +108,7 @@ export default function Jadwal() {
 
   function openAdd() {
     setEditItem(null);
-    setForm({ hari: '', mata_kuliah: '', jam_mulai: '', jam_selesai: '', ruang: '', dosen: '' });
+    setForm({ hari: '', mata_kuliah: '', jam_mulai: '', jam_selesai: '', ruang: '', dosen: '', tipe: 'kuliah' });
     setModalOpen(true);
   }
 
@@ -106,6 +121,7 @@ export default function Jadwal() {
       jam_selesai: item.jam_selesai,
       ruang: item.ruang || '',
       dosen: item.dosen || '',
+      tipe: item.tipe || 'kuliah',
     });
     setModalOpen(true);
   }
@@ -217,6 +233,11 @@ export default function Jadwal() {
                     </p>
                   </div>
                   <div className="flex gap-1.5 items-center">
+                    {j.tipe && (
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${tipeColors[j.tipe] || tipeColors.kuliah}`}>
+                        {tipeOptions.find(o => o.value === j.tipe)?.label || j.tipe}
+                      </span>
+                    )}
                     {j.is_group_schedule === 1 && j.group_name && (
                       <Badge variant="warning">{j.group_name}</Badge>
                     )}
@@ -302,6 +323,12 @@ export default function Jadwal() {
           {checkingConflict && (
             <p className="text-xs text-text-muted">Memeriksa bentrok...</p>
           )}
+          <Select
+            label="Tipe Kelas"
+            options={tipeOptions}
+            value={form.tipe}
+            onChange={(e) => setForm({ ...form, tipe: e.target.value })}
+          />
           <Input
             label="Ruang (opsional)"
             placeholder="Nama ruangan"

@@ -21,6 +21,20 @@ import {
   ArrowLeft, Trash2, LogOut, Crown, ClipboardList, Check, MessageCircle
 } from 'lucide-react';
 
+const tipeOptions = [
+  { value: 'kuliah', label: 'Kuliah' },
+  { value: 'praktikum', label: 'Praktikum' },
+  { value: 'seminar', label: 'Seminar' },
+  { value: 'responsi', label: 'Responsi' },
+];
+
+const tipeColors = {
+  kuliah: 'bg-blue-100 text-blue-700',
+  praktikum: 'bg-orange-100 text-orange-700',
+  seminar: 'bg-purple-100 text-purple-700',
+  responsi: 'bg-green-100 text-green-700',
+};
+
 const dayOptions = [
   { value: 'Senin', label: 'Senin' },
   { value: 'Selasa', label: 'Selasa' },
@@ -51,7 +65,7 @@ export default function GroupDetail() {
   const [jadwalModalOpen, setJadwalModalOpen] = useState(false);
   const [editJadwal, setEditJadwal] = useState(null);
   const [jadwalForm, setJadwalForm] = useState({
-    hari: '', mata_kuliah: '', jam_mulai: '', jam_selesai: '', ruang: '', dosen: ''
+    hari: '', mata_kuliah: '', jam_mulai: '', jam_selesai: '', ruang: '', dosen: '', tipe: 'kuliah'
   });
   const [jadwalSubmitting, setJadwalSubmitting] = useState(false);
 
@@ -233,7 +247,7 @@ export default function GroupDetail() {
 
   function openAddJadwal() {
     setEditJadwal(null);
-    setJadwalForm({ hari: '', mata_kuliah: '', jam_mulai: '', jam_selesai: '', ruang: '', dosen: '' });
+    setJadwalForm({ hari: '', mata_kuliah: '', jam_mulai: '', jam_selesai: '', ruang: '', dosen: '', tipe: 'kuliah' });
     setJadwalModalOpen(true);
   }
 
@@ -242,7 +256,7 @@ export default function GroupDetail() {
     setJadwalForm({
       hari: j.hari, mata_kuliah: j.mata_kuliah,
       jam_mulai: j.jam_mulai, jam_selesai: j.jam_selesai,
-      ruang: j.ruang || '', dosen: j.dosen || '',
+      ruang: j.ruang || '', dosen: j.dosen || '', tipe: j.tipe || 'kuliah',
     });
     setJadwalModalOpen(true);
   }
@@ -652,6 +666,11 @@ export default function GroupDetail() {
                           {j.dosen && `${j.dosen}`}{j.dosen && j.ruang && ' · '}{j.ruang || ''}
                         </p>
                       </div>
+                      {j.tipe && (
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${tipeColors[j.tipe] || tipeColors.kuliah}`}>
+                          {tipeOptions.find(o => o.value === j.tipe)?.label || j.tipe}
+                        </span>
+                      )}
                       {j.ruang && <Badge>{j.ruang}</Badge>}
                       {isAdmin && (
                         <div className="flex gap-1.5">
@@ -835,6 +854,12 @@ export default function GroupDetail() {
             placeholder="Nama dosen"
             value={jadwalForm.dosen}
             onChange={(e) => setJadwalForm({ ...jadwalForm, dosen: e.target.value })}
+          />
+          <Select
+            label="Tipe Kelas"
+            options={tipeOptions}
+            value={jadwalForm.tipe}
+            onChange={(e) => setJadwalForm({ ...jadwalForm, tipe: e.target.value })}
           />
           <div className="grid grid-cols-2 gap-3">
             <Input
