@@ -14,10 +14,11 @@ import Badge from '../components/ui/Badge';
 import EmptyState from '../components/ui/EmptyState';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
+import ChatArea from '../components/ChatArea';
 import {
   Users, UserMinus, UserPlus, Shield, Copy, RefreshCw,
   Megaphone, CalendarRange, Pencil, X, Plus,
-  ArrowLeft, Trash2, LogOut, Crown, ClipboardList, Check
+  ArrowLeft, Trash2, LogOut, Crown, ClipboardList, Check, MessageCircle
 } from 'lucide-react';
 
 const dayOptions = [
@@ -457,6 +458,7 @@ export default function GroupDetail() {
 
       <div className="flex gap-2 mb-6 border-b border-border overflow-x-auto">
         {[
+          { key: 'chat', label: 'Chat', icon: MessageCircle },
           { key: 'announcements', label: 'Pengumuman', icon: Megaphone },
           { key: 'tugas', label: 'Tugas', icon: ClipboardList },
           { key: 'jadwal', label: 'Jadwal', icon: CalendarRange },
@@ -479,6 +481,10 @@ export default function GroupDetail() {
           );
         })}
       </div>
+
+      {activeTab === 'chat' && (
+        <ChatArea groupId={id} />
+      )}
 
       {activeTab === 'announcements' && (
         <div>
