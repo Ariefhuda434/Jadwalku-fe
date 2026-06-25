@@ -1,21 +1,25 @@
 {
-  "name": "JadwalKu - Pengingat Jadwal Kuliah",
+  "name": "JadwalKu - Pengingat Jadwal Kuliah & Tugas",
   "short_name": "JadwalKu",
-  "description": "Aplikasi pengingat jadwal kuliah dan tugas",
+  "description": "Aplikasi pengingat jadwal kuliah dan tugas dengan fitur grup, chat, dan notifikasi",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F8FAFC",
-  "theme_color": "#4F46E5",
+  "theme_color": "#0891B2",
+  "orientation": "portrait-primary",
+  "categories": ["education", "productivity"],
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
